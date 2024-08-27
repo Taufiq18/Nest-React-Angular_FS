@@ -1,13 +1,21 @@
 pipeline {
     agent any
     stages {
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    sh 'npm install -g @nestjs/cli'
+                    sh 'cd express-service && npm install'
+                    sh 'cd nest-service && npm install'
+                    sh 'cd front-end-service && npm install'
+                }
+            }
+        }
         stage('Build') {
             steps {
                 script {
-                    sh 'docker build -t postgres:13 .'
-                    sh 'docker build -t express-service ./express-service'
-                    sh 'docker build -t nest-service ./nest-service'
-                    sh 'docker build -t front-end-service ./front-end-service'
+                    sh 'cd front-end-service && npm run build'
+                    sh 'cd nest-service && npm run build'
                 }
             }
         }
@@ -15,11 +23,22 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    docker network create myapp-network || true
-                    docker run -d --name postgres --network myapp-network -e POSTGRES_USER=myuser -e POSTGRES_PASSWORD=mypassword -e POSTGRES_DB=mydatabase -p 5432:5432 postgres:13
-                    docker run -d --name express-service --network myapp-network -e DB_HOST=postgres -e DB_USER=myuser -e DB_PASSWORD=mypassword -e DB_NAME=mydatabase -p 3001:3001 express-service
-                    docker run -d --name nest-service --network myapp-network -e DB_HOST=postgres -e DB_USER=myuser -e DB_PASSWORD=mypassword -e DB_NAME=mydatabase -p 3002:3002 nest-service
-                    docker run -d --name front-end-service --network myapp-network -p 5173:5173 front-end-service
+                    # Start PostgreSQL (assuming it's installed on the host)
+                    sudo -u postgres psql -c "CREATE DATABASE mydatabase;"
+                    sudo -u postgres psql -c "CREATE USER myuser WITH PASSWORD 'mypassword';"
+                    sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE mydatabase TO myuser;"
+                    
+                    # Start Express service
+                    cd express-service
+                    DB_HOST=localhost DB_USER=myuser DB_PASSWORD=mypassword DB_NAME=mydatabase nohup node server.js > express.log 2>&1 &
+                    
+                    # Start Nest service
+                    cd ../nest-service
+                    DB_HOST=localhost DB_USER=myuser DB_PASSWORD=mypassword DB_NAME=mydatabase nohup npm run start:prod > nest.log 2>&1 &
+                    
+                    # Start front-end service
+                    cd ../front-end-service
+                    nohup npm run dev > frontend.log 2>&1 &
                     '''
                 }
             }
