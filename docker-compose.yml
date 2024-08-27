@@ -1,13 +1,38 @@
 version: '3.8'
 services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+
   express-service:
     build: ./express-service
+    environment:
+      - DB_HOST=postgres
+      - DB_USER=myuser
+      - DB_PASSWORD=mypassword
+      - DB_NAME=mydatabase
     ports:
       - "3001:3001"
+    depends_on:
+      - postgres
+
   nest-service:
     build: ./nest-service
+    environment:
+      - DB_HOST=postgres
+      - DB_USER=myuser
+      - DB_PASSWORD=mypassword
+      - DB_NAME=mydatabase
     ports:
       - "3002:3002"
+    depends_on:
+      - postgres
+
   front-end-service:
     build: ./front-end-service
     ports:
