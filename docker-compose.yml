@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  express-service:
+    build: ./express-service
+    ports:
+      - "3001:3001"
+  nest-service:
+    build: ./nest-service
+    ports:
+      - "3002:3002"
+  front-end-service:
+    build: ./front-end-service
+    ports:
+      - "5173:5173"
