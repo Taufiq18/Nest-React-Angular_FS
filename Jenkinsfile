@@ -10,71 +10,56 @@ pipeline {
     }
 
     stages {
-        stage('Setup') {
-            steps {
-                echo 'Setting up the environment...'
-                sh 'npm install'
-            }
-        }
-
-        stage('Build Express Service') {
-            steps {
-                dir('express-service') {
-                    echo 'Building Express Service...'
-                    sh 'npm install'
-                    sh 'npm run build'
+        stage('Install Dependencies') {
+            parallel {
+                stage('Install BE-Express') {
+                    steps {
+                        dir('BE-Express') {
+                            bat 'npm install'
+                        }
+                    }
+                }
+                stage('Install BE-NestJS') {
+                    steps {
+                        dir('BE-NestJS') {
+                            bat 'npm install'
+                        }
+                    }
+                }
+                stage('Install FE-React') {
+                    steps {
+                        dir('FE-React') {
+                            bat 'npm install'
+                        }
+                    }
                 }
             }
         }
 
-        stage('Build NestJS Service') {
-            steps {
-                dir('nest-service') {
-                    echo 'Building NestJS Service...'
-                    sh 'npm install'
-                    sh 'npm run build'
+        stage('Start Applications') {
+            parallel {
+                stage('Start BE-Express') {
+                    steps {
+                        dir('BE-Express') {
+                            bat 'start /B npm start'
+                        }
+                    }
+                }
+                stage('Start BE-NestJS') {
+                    steps {
+                        dir('BE-NestJS') {
+                            bat 'start /B npm start'
+                        }
+                    }
+                }
+                stage('Start FE-React') {
+                    steps {
+                        dir('FE-React') {
+                            bat 'start /B npm run preview'
+                        }
+                    }
                 }
             }
-        }
-
-        stage('Build Front-End Service') {
-            steps {
-                dir('front-end-service') {
-                    echo 'Building Front-End Service...'
-                    sh 'npm install'
-                    sh 'npm run build'
-                }
-            }
-        }
-
-
-        stage('Deploy') {
-            steps {
-                echo 'Deploying services...'
-                // Start each service
-                sh 'pm2 start express-service/server.js'
-                sh 'pm2 start nest-service/dist/main.js'
-                sh 'pm2 start front-end-service/dist/index.js'
-
-                // Optionally: Deploy to a remote server
-                // sh 'scp -r ./dist user@remote_server:/path/to/deploy'
-            }
-        }
-    }
-
-    post {
-        always {
-            echo 'Cleaning up...'
-            // Clean up workspace if needed
-            sh 'pm2 stop all'
-        }
-
-        success {
-            echo 'Deployment successful!'
-        }
-
-        failure {
-            echo 'Deployment failed.'
         }
     }
 }
