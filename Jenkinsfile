@@ -12,23 +12,23 @@ pipeline {
     stages {
         stage('Install Dependencies') {
             parallel {
-                stage('Install BE-Express') {
+                stage('Install express-service') {
                     steps {
-                        dir('BE-Express') {
+                        dir('express-service') {
                             sh 'npm install'
                         }
                     }
                 }
-                stage('Install BE-NestJS') {
+                stage('Install nest-service') {
                     steps {
-                        dir('BE-NestJS') {
+                        dir('nest-service') {
                             sh 'npm install'
                         }
                     }
                 }
-                stage('Install FE-React') {
+                stage('Install front-end-service') {
                     steps {
-                        dir('FE-React') {
+                        dir('front-end-service') {
                             sh 'npm install'
                         }
                     }
@@ -38,23 +38,23 @@ pipeline {
 
         stage('Start Applications') {
             parallel {
-                stage('Start BE-Express') {
+                stage('Start express-service') {
                     steps {
-                        dir('BE-Express') {
+                        dir('express-service') {
                             sh 'nohup npm start &'
                         }
                     }
                 }
-                stage('Start BE-NestJS') {
+                stage('Start nest-service') {
                     steps {
-                        dir('BE-NestJS') {
+                        dir('nest-service') {
                             sh 'nohup npm start &'
                         }
                     }
                 }
-                stage('Start FE-React') {
+                stage('Start front-end-service') {
                     steps {
-                        dir('FE-React') {
+                        dir('front-end-service') {
                             sh 'nohup npm run preview &'
                         }
                     }
