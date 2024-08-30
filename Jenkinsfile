@@ -15,21 +15,21 @@ pipeline {
                 stage('Install BE-Express') {
                     steps {
                         dir('BE-Express') {
-                            bat 'npm install'
+                            sh 'npm install'
                         }
                     }
                 }
                 stage('Install BE-NestJS') {
                     steps {
                         dir('BE-NestJS') {
-                            bat 'npm install'
+                            sh 'npm install'
                         }
                     }
                 }
                 stage('Install FE-React') {
                     steps {
                         dir('FE-React') {
-                            bat 'npm install'
+                            sh 'npm install'
                         }
                     }
                 }
@@ -41,21 +41,21 @@ pipeline {
                 stage('Start BE-Express') {
                     steps {
                         dir('BE-Express') {
-                            bat 'start /B npm start'
+                            sh 'nohup npm start &'
                         }
                     }
                 }
                 stage('Start BE-NestJS') {
                     steps {
                         dir('BE-NestJS') {
-                            bat 'start /B npm start'
+                            sh 'nohup npm start &'
                         }
                     }
                 }
                 stage('Start FE-React') {
                     steps {
                         dir('FE-React') {
-                            bat 'start /B npm run preview'
+                            sh 'nohup npm run preview &'
                         }
                     }
                 }
